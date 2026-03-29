@@ -204,8 +204,11 @@ class MyNewService extends AbstractService
 
     public function render(): string
     {
-        $id = $this->cfg('tracking_id');
-        return "<script>/* tracking code for {$id} */</script>";
+        $id = $this->sanitizeId((string) $this->cfg('tracking_id'));
+        if ($id === '') return '';
+
+        $safeId = $this->jsEncode($id);
+        return "<script>/* tracking code for {$safeId} */</script>";
     }
 }
 ```
@@ -231,6 +234,29 @@ class MyNewService extends AbstractService
 - `head` — перед `</head>`
 - `body_end` — перед `</body>`
 - `after_body_open` — сразу после `<body>`
+
+## Безопасность
+
+### Правила для разработки сервисов
+
+- **JS-контекст**: значения внутри `<script>` → `$this->jsEncode()` (НЕ `htmlspecialchars`!)
+- **HTML-контекст**: значения в атрибутах → `$this->escAttr()`
+- **ID/ключи**: `$this->sanitizeId()` — только `[a-zA-Z0-9_-]`
+- **URL**: `$this->sanitizeUrl($url, $allowedHosts)` — с allowlist доменов
+- **Permissions**: `checkPermissions()` → `$this->modx->hasPermission('settings')`
+- **service_key**: regex `/^[a-z0-9\-]{1,50}$/` во всех процессорах
+- **Config**: фильтровать ключи по `getFields()` перед сохранением в БД
+- **Error messages**: не включать user input в `failure()` ответы
+- **Плагины**: НЕ использовать `declare(strict_types=1)` — MODX выполняет их через eval()
+
+### Хелперы в AbstractService
+
+| Метод | Контекст | Пример |
+|-------|----------|--------|
+| `$this->jsEncode($val)` | JS-строка в `<script>` | `ym({$this->jsEncode($id)}, "init")` |
+| `$this->escAttr($val)` | HTML-атрибут | `src="https://example.com/{$this->escAttr($id)}"` |
+| `$this->sanitizeId($val)` | Проверка формата | Возвращает `''` если не alphanumeric |
+| `$this->sanitizeUrl($url, $hosts)` | Проверка URL | Возвращает `''` если домен не в списке |
 
 ## Лицензия
 
