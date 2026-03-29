@@ -10,7 +10,7 @@ class RefreshAsset extends Processor
 {
     public function checkPermissions(): bool
     {
-        return true;
+        return $this->modx->hasPermission('settings');
     }
 
     protected array $supportedAssets = [
@@ -21,8 +21,8 @@ class RefreshAsset extends Processor
     {
         $serviceKey = $this->getProperty('service_key', '');
 
-        if (empty($serviceKey)) {
-            return $this->failure('service_key is required');
+        if (empty($serviceKey) || !preg_match('/^[a-z0-9\-]{1,50}$/', $serviceKey)) {
+            return $this->failure('Invalid service_key');
         }
 
         if (!isset($this->supportedAssets[$serviceKey])) {
@@ -30,6 +30,11 @@ class RefreshAsset extends Processor
         }
 
         $sourceUrl = $this->supportedAssets[$serviceKey];
+
+        // Enforce HTTPS
+        if (!str_starts_with($sourceUrl, 'https://')) {
+            return $this->failure('Only HTTPS sources are allowed');
+        }
 
         $assetsPath = $this->modx->getOption(
             'scripthub.assets_path',
@@ -58,7 +63,7 @@ class RefreshAsset extends Processor
 
         $content = @file_get_contents($sourceUrl, false, $context);
         if ($content === false) {
-            return $this->failure('Failed to download ' . basename($sourceUrl) . ' from ' . $sourceUrl);
+            return $this->failure('Failed to download asset file');
         }
 
         // Validate size
@@ -67,21 +72,39 @@ class RefreshAsset extends Processor
         }
 
         // Validate content is JavaScript (not PHP, HTML, etc.)
-        $trimmed = ltrim($content);
-        if (str_starts_with($trimmed, '<?php') || str_starts_with($trimmed, '<?=') || str_starts_with($trimmed, '<!DOCTYPE')) {
-            return $this->failure('Downloaded content is not a valid JavaScript file');
+        if (str_contains($content, '<?php') || str_contains($content, '<?=') || str_contains($content, '<?xml')) {
+            return $this->failure('Downloaded content contains PHP/XML tags');
         }
 
+        $trimmed = ltrim($content);
+        if (str_starts_with($trimmed, '<!DOCTYPE') || str_starts_with($trimmed, '<html')) {
+            return $this->failure('Downloaded content is HTML, not JavaScript');
+        }
+
+        // Validate HTTP response headers (Content-Type)
+        if (isset($http_response_header)) {
+            $contentType = '';
+            foreach ($http_response_header as $header) {
+                if (stripos($header, 'Content-Type:') === 0) {
+                    $contentType = strtolower(trim(substr($header, 13)));
+                }
+            }
+            if ($contentType && !str_contains($contentType, 'javascript') && !str_contains($contentType, 'ecmascript')) {
+                return $this->failure('Unexpected Content-Type: expected JavaScript');
+            }
+        }
+
+        $fileName = basename(parse_url($sourceUrl, PHP_URL_PATH) ?: 'asset.js');
         if (file_put_contents($targetFile, $content) === false) {
-            return $this->failure('Failed to write ' . basename($sourceUrl) . ' to disk');
+            return $this->failure('Failed to write asset to disk');
         }
 
         $this->modx->log(\MODX\Revolution\modX::LOG_LEVEL_INFO,
-            '[scriptHub] Downloaded ' . basename($sourceUrl) . ' (' . strlen($content) . ' bytes)'
+            '[scriptHub] Downloaded ' . $fileName . ' (' . strlen($content) . ' bytes)'
         );
 
         return $this->success('', [
-            'file' => basename($sourceUrl),
+            'file' => $fileName,
             'size' => strlen($content),
             'updated_at' => date('Y-m-d H:i:s'),
         ]);

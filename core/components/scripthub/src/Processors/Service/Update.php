@@ -10,7 +10,7 @@ class Update extends Processor
 {
     public function checkPermissions(): bool
     {
-        return true;
+        return $this->modx->hasPermission('settings');
     }
 
     public function process(): mixed
@@ -18,8 +18,8 @@ class Update extends Processor
         $serviceKey = $this->getProperty('service_key', '');
         $configRaw = $this->getProperty('config', '');
 
-        if (empty($serviceKey)) {
-            return $this->failure('service_key is required');
+        if (empty($serviceKey) || !preg_match('/^[a-z0-9\-]{1,50}$/', $serviceKey)) {
+            return $this->failure('Invalid service_key');
         }
 
         /** @var \RenderRoom\ScriptHub\ScriptHub $scriptHub */
@@ -27,11 +27,15 @@ class Update extends Processor
         $service = $scriptHub->getRegistry()->get($serviceKey);
 
         if (!$service) {
-            return $this->failure('Service not found: ' . $serviceKey);
+            return $this->failure('Service not found');
         }
 
         // Parse config
         $config = is_string($configRaw) ? (json_decode($configRaw, true) ?? []) : (array) $configRaw;
+
+        // Filter config to only allowed keys from field definitions
+        $allowedKeys = array_column($service->getFields(), 'key');
+        $config = array_intersect_key($config, array_flip($allowedKeys));
 
         // Validate
         $errors = $service->validate($config);

@@ -67,13 +67,13 @@ class MyTarget extends AbstractService
             return '';
         }
 
-        $id = (int) $counterId;
+        $safeId = $this->jsEncode($this->sanitizeId((string) $counterId));
 
         return <<<HTML
 <!-- Top.Mail.Ru / MyTarget (scriptHub) -->
 <script>
 var _tmr=window._tmr||(window._tmr=[]);
-_tmr.push({id:{$id},type:"pageView",start:(new Date()).getTime()});
+_tmr.push({id:{$safeId},type:"pageView",start:(new Date()).getTime()});
 (function(d,w,id){if(d.getElementById(id))return;var ts=d.createElement("script");ts.type="text/javascript";
 ts.async=true;ts.id=id;ts.src="https://top-fwz1.mail.ru/js/code.js";
 var f=function(){var s=d.getElementsByTagName("script")[0];s.parentNode.insertBefore(ts,s)};
@@ -90,7 +90,7 @@ HTML;
         if (empty($counterId)) {
             return '';
         }
-        $id = (int) $counterId;
-        return '<noscript><div><img src="https://top-fwz1.mail.ru/counter?id=' . $id . ';js=na" style="position:absolute;left:-9999px" alt="Top.Mail.Ru" /></div></noscript>';
+        $safeId = $this->escAttr($this->sanitizeId((string) $counterId));
+        return '<noscript><div><img src="https://top-fwz1.mail.ru/counter?id=' . $safeId . ';js=na" style="position:absolute;left:-9999px" alt="Top.Mail.Ru" /></div></noscript>';
     }
 }

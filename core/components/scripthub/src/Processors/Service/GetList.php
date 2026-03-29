@@ -11,7 +11,7 @@ class GetList extends Processor
 {
     public function checkPermissions(): bool
     {
-        return true;
+        return $this->modx->hasPermission('settings');
     }
 
     public function process(): mixed

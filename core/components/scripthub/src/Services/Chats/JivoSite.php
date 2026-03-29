@@ -67,11 +67,11 @@ class JivoSite extends AbstractService
             return '';
         }
 
-        $escapedId = htmlspecialchars((string) $widgetId, ENT_QUOTES, 'UTF-8');
+        $safeId = $this->escAttr($this->sanitizeId((string) $widgetId));
 
         return <<<HTML
 <!-- JivoSite (scriptHub) -->
-<script src="//code.jivosite.com/widget/{$escapedId}" async></script>
+<script src="//code.jivosite.com/widget/{$safeId}" async></script>
 <!-- /JivoSite -->
 HTML;
     }

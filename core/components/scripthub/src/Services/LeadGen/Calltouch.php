@@ -76,8 +76,8 @@ class Calltouch extends AbstractService
             return '';
         }
 
-        $escapedModId = htmlspecialchars((string) $modId, ENT_QUOTES, 'UTF-8');
-        $escapedSiteId = htmlspecialchars((string) $siteId, ENT_QUOTES, 'UTF-8');
+        $safeModId = $this->jsEncode($this->sanitizeId((string) $modId));
+        $safeSiteId = $this->jsEncode($this->sanitizeId((string) $siteId));
 
         return <<<HTML
 <!-- Calltouch (scriptHub) -->
@@ -88,9 +88,9 @@ w[n]["counters"]=c;for(var i=0;i<c.length;i++){p(c[i])}function p(c498c){
 var s=d.createElement("script");s.type="text/javascript";s.async=true;
 s.src="https://mod.calltouch.ru/init.js?id="+c498c;
 var i=d.getElementsByTagName("script")[0];i.parentNode.insertBefore(s,i)}
-})(window,document,"ct","{$escapedModId}");
+})(window,document,"ct",{$safeModId});
 window.ct('calltracking_params',['phone']);
-window.ct_site_id="{$escapedSiteId}";
+window.ct_site_id={$safeSiteId};
 </script>
 <!-- /Calltouch -->
 HTML;

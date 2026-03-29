@@ -35,7 +35,7 @@ class ScriptHubHomeManagerController extends ScriptHubManagerController
 
     public function checkPermissions(): bool
     {
-        return true;
+        return $this->modx->hasPermission('settings');
     }
 
     public function loadCustomCssJs(): void
@@ -95,9 +95,15 @@ class ScriptHubHomeManagerController extends ScriptHubManagerController
      */
     protected function registerVueToolsCheck(): void
     {
-        $alertTitle = $this->modx->lexicon('scripthub_error') ?: 'Error';
-        $alertMessage = $this->modx->lexicon('scripthub_vuetools_required')
-            ?: 'Для работы scriptHub необходим пакет VueTools. Установите его из Package Manager.';
+        $alertTitle = json_encode(
+            $this->modx->lexicon('scripthub_error') ?: 'Error',
+            JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP
+        );
+        $alertMessage = json_encode(
+            $this->modx->lexicon('scripthub_vuetools_required')
+                ?: 'Для работы scriptHub необходим пакет VueTools. Установите его из Package Manager.',
+            JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP
+        );
 
         $script = <<<JS
 <script>
@@ -116,21 +122,23 @@ class ScriptHubHomeManagerController extends ScriptHubManagerController
         document.querySelectorAll('script[type="module"][data-vue-module]').forEach(function(el) {
             el.remove();
         });
+        var title = {$alertTitle};
+        var msg = {$alertMessage};
         if (typeof Ext !== 'undefined') {
             Ext.onReady(function() {
                 if (typeof MODx !== 'undefined' && MODx.msg) {
-                    MODx.msg.alert('{$alertTitle}', '{$alertMessage}');
+                    MODx.msg.alert(title, msg);
                 } else {
-                    alert('{$alertMessage}');
+                    alert(msg);
                 }
             });
         } else {
             document.addEventListener('DOMContentLoaded', function() {
                 setTimeout(function() {
                     if (typeof MODx !== 'undefined' && MODx.msg) {
-                        MODx.msg.alert('{$alertTitle}', '{$alertMessage}');
+                        MODx.msg.alert(title, msg);
                     } else {
-                        alert('{$alertMessage}');
+                        alert(msg);
                     }
                 }, 500);
             });

@@ -67,7 +67,7 @@ class CarrotQuest extends AbstractService
             return '';
         }
 
-        $escapedKey = htmlspecialchars((string) $apiKey, ENT_QUOTES, 'UTF-8');
+        $safeKey = $this->jsEncode($this->sanitizeId((string) $apiKey));
 
         return <<<HTML
 <!-- Carrot Quest (scriptHub) -->
@@ -79,7 +79,7 @@ document.getElementsByTagName("head")[0].appendChild(e),window.carrotquest={},
 window.carrotquestasync=[],carrotquest.settings={};for(var n=["connect","track","identify",
 "auth","onReady","addCallback","removeCallback","trackMessageInteraction"],a=0;a<n.length;a++)
 carrotquest[n[a]]=t(n[a])}}();
-carrotquest.connect('{$escapedKey}');
+carrotquest.connect({$safeKey});
 </script>
 <!-- /Carrot Quest -->
 HTML;

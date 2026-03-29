@@ -84,14 +84,14 @@ class YandexMessenger extends AbstractService
             return '';
         }
 
-        $escapedOrgId = htmlspecialchars((string) $orgId, ENT_QUOTES, 'UTF-8');
-        $escapedChatId = htmlspecialchars((string) $chatId, ENT_QUOTES, 'UTF-8');
+        $safeOrgId = $this->jsEncode($this->sanitizeId((string) $orgId));
+        $safeChatId = $this->jsEncode($this->sanitizeId((string) $chatId));
 
         $colorOption = '';
         $color = $this->cfg('color', '');
         if (!empty($color)) {
-            $escapedColor = htmlspecialchars((string) $color, ENT_QUOTES, 'UTF-8');
-            $colorOption = ",color:'{$escapedColor}'";
+            $safeColor = $this->jsEncode((string) $color);
+            $colorOption = ",color:{$safeColor}";
         }
 
         return <<<HTML
@@ -100,7 +100,7 @@ class YandexMessenger extends AbstractService
 (function(){var w=window,d=document,s=d.createElement('script');
 s.src='https://chat.s3.yandex.net/widget.js';s.async=true;
 s.onload=function(){
-Ya.Chat.Widget.open({serviceId:'{$escapedOrgId}',chatId:'{$escapedChatId}'{$colorOption}});
+Ya.Chat.Widget.open({serviceId:{$safeOrgId},chatId:{$safeChatId}{$colorOption}});
 };d.body.appendChild(s);})();
 </script>
 <!-- /Yandex Messenger -->

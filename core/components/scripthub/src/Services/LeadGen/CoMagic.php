@@ -67,13 +67,13 @@ class CoMagic extends AbstractService
             return '';
         }
 
-        $escapedId = htmlspecialchars((string) $siteId, ENT_QUOTES, 'UTF-8');
+        $safeId = $this->jsEncode($this->sanitizeId((string) $siteId));
 
         return <<<HTML
 <!-- CoMagic (scriptHub) -->
 <script>
 var __cs=__cs||[];
-__cs.push(["setCs498Id","{$escapedId}"]);
+__cs.push(["setCs498Id",{$safeId}]);
 (function(){var ml=document.createElement("script");ml.type="text/javascript";ml.async=true;
 ml.src="https://cdn.comagic.ru/comagic-mod.js";
 var s=document.getElementsByTagName("script")[0];s.parentNode.insertBefore(ml,s);})();

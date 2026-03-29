@@ -67,7 +67,7 @@ class TikTokPixel extends AbstractService
             return '';
         }
 
-        $escapedId = htmlspecialchars((string) $pixelId, ENT_QUOTES, 'UTF-8');
+        $safeId = $this->jsEncode($this->sanitizeId((string) $pixelId));
 
         return <<<HTML
 <!-- TikTok Pixel (scriptHub) -->
@@ -83,7 +83,7 @@ ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new D
 ttq._o=ttq._o||{},ttq._o[e]=n||{};var a=document.createElement("script");
 a.type="text/javascript",a.async=!0,a.src=r+"?sdkid="+e+"&lib="+t;
 var s=document.getElementsByTagName("script")[0];s.parentNode.insertBefore(a,s)};
-ttq.load('{$escapedId}');
+ttq.load({$safeId});
 ttq.page();
 }(window,document,'ttq');
 </script>

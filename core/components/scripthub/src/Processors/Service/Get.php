@@ -10,14 +10,14 @@ class Get extends Processor
 {
     public function checkPermissions(): bool
     {
-        return true;
+        return $this->modx->hasPermission('settings');
     }
 
     public function process(): mixed
     {
         $serviceKey = $this->getProperty('service_key', '');
-        if (empty($serviceKey)) {
-            return $this->failure('service_key is required');
+        if (empty($serviceKey) || !preg_match('/^[a-z0-9\-]{1,50}$/', $serviceKey)) {
+            return $this->failure('Invalid service_key');
         }
 
         /** @var \RenderRoom\ScriptHub\ScriptHub $scriptHub */
@@ -25,7 +25,7 @@ class Get extends Processor
         $service = $scriptHub->getRegistry()->get($serviceKey);
 
         if (!$service) {
-            return $this->failure('Service not found: ' . $serviceKey);
+            return $this->failure('Service not found');
         }
 
         $data = $service->toArray();

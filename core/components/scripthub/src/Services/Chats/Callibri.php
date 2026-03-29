@@ -63,18 +63,19 @@ class Callibri extends AbstractService
 
     public function render(): string
     {
-        $siteId = htmlspecialchars((string) $this->cfg('site_id'), ENT_QUOTES);
-
-        if (empty($siteId)) {
+        $rawSiteId = (string) $this->cfg('site_id');
+        if (empty($rawSiteId)) {
             return '';
         }
+
+        $safeSiteId = $this->jsEncode($this->sanitizeId($rawSiteId));
 
         return <<<HTML
 <!-- Callibri (scriptHub) -->
 <script src="https://cdn.callibri.ru/callibri.js" type="text/javascript" charset="utf-8"></script>
 <script type="text/javascript">
 window.callibri_data = window.callibri_data || [];
-callibri_data.push({site_id: "{$siteId}"});
+callibri_data.push({site_id: {$safeSiteId}});
 </script>
 <!-- /Callibri -->
 HTML;

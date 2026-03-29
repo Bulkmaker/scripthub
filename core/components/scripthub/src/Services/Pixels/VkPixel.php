@@ -67,13 +67,13 @@ class VkPixel extends AbstractService
             return '';
         }
 
-        $escapedId = htmlspecialchars((string) $pixelId, ENT_QUOTES, 'UTF-8');
+        $safeId = $this->jsEncode($this->sanitizeId((string) $pixelId));
 
         return <<<HTML
 <!-- VK Pixel (scriptHub) -->
 <script>
 !function(){var t=document.createElement("script");t.type="text/javascript",t.async=!0,
-t.src="https://vk.com/js/api/openapi.js?169",t.onload=function(){VK.Retargeting.Init("{$escapedId}"),
+t.src="https://vk.com/js/api/openapi.js?169",t.onload=function(){VK.Retargeting.Init({$safeId}),
 VK.Retargeting.Hit()},document.head.appendChild(t)}();
 </script>
 <!-- /VK Pixel -->
@@ -86,7 +86,7 @@ HTML;
         if (empty($pixelId)) {
             return '';
         }
-        $escapedId = htmlspecialchars((string) $pixelId, ENT_QUOTES, 'UTF-8');
-        return '<noscript><img src="https://vk.com/rtrg?p=' . $escapedId . '" style="position:fixed;left:-999px" alt="" /></noscript>';
+        $safeId = $this->escAttr($this->sanitizeId((string) $pixelId));
+        return '<noscript><img src="https://vk.com/rtrg?p=' . $safeId . '" style="position:fixed;left:-999px" alt="" /></noscript>';
     }
 }

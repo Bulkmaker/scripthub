@@ -79,20 +79,20 @@ class Marquiz extends AbstractService
             return '';
         }
 
-        $escapedId = htmlspecialchars((string) $quizId, ENT_QUOTES, 'UTF-8');
+        $safeId = $this->jsEncode($this->sanitizeId((string) $quizId));
         $embedType = $this->cfg('embed_type', 'popup');
 
         $initCode = match ($embedType) {
-            'button' => "Marquiz.showButton({id:'{$escapedId}'});",
-            'inline' => "Marquiz.inline({id:'{$escapedId}',container:'#marquiz-container'});",
-            default => "Marquiz.showPopup({id:'{$escapedId}'});",
+            'button' => "Marquiz.showButton({id:{$safeId}});",
+            'inline' => "Marquiz.inline({id:{$safeId},container:'#marquiz-container'});",
+            default => "Marquiz.showPopup({id:{$safeId}});",
         };
 
         return <<<HTML
 <!-- Marquiz (scriptHub) -->
 <script>
 (function(t,p){window.Marquiz?Marquiz.add([t,p]):document.addEventListener('marquizLoaded',function(){Marquiz.add([t,p])})})
-('accounts',{id:'{$escapedId}',autoOpen:3,autoOpenFreq:'once'});
+('accounts',{id:{$safeId},autoOpen:3,autoOpenFreq:'once'});
 (function(){var s=document.createElement('script');s.type='text/javascript';s.async=true;
 s.src='//script.marquiz.io/v2.js';var x=document.getElementsByTagName('script')[0];
 x.parentNode.insertBefore(s,x);})();

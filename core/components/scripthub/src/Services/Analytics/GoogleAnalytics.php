@@ -81,7 +81,12 @@ class GoogleAnalytics extends AbstractService
             return '';
         }
 
-        $measurementId = htmlspecialchars((string) $id, ENT_QUOTES, 'UTF-8');
+        $safeMeasurementId = $this->sanitizeId((string) $id);
+        if (empty($safeMeasurementId)) {
+            return '';
+        }
+        $jsMeasurementId = $this->jsEncode($safeMeasurementId);
+        $attrMeasurementId = $this->escAttr($safeMeasurementId);
 
         $configParams = [];
         if (!$this->cfg('enhanced_measurement', true)) {
@@ -97,11 +102,11 @@ class GoogleAnalytics extends AbstractService
 
         return <<<HTML
 <!-- Google Analytics 4 (scriptHub) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id={$measurementId}"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id={$attrMeasurementId}"></script>
 <script>
 window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
 gtag('js',new Date());
-gtag('config','{$measurementId}'{$configStr});
+gtag('config',{$jsMeasurementId}{$configStr});
 </script>
 <!-- /Google Analytics 4 -->
 HTML;

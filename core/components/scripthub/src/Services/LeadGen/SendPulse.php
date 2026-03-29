@@ -67,11 +67,16 @@ class SendPulse extends AbstractService
             return '';
         }
 
-        $escapedUrl = htmlspecialchars((string) $scriptUrl, ENT_QUOTES, 'UTF-8');
+        $safeUrl = $this->sanitizeUrl((string) $scriptUrl, ['cdn.sendpulse.com', 'static.sendpulse.com']);
+        if (empty($safeUrl)) {
+            return '';
+        }
+
+        $attrUrl = $this->escAttr($safeUrl);
 
         return <<<HTML
 <!-- SendPulse (scriptHub) -->
-<script src="{$escapedUrl}" async charset="utf-8"></script>
+<script src="{$attrUrl}" async charset="utf-8"></script>
 <!-- /SendPulse -->
 HTML;
     }

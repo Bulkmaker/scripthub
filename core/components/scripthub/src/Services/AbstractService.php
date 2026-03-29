@@ -86,6 +86,50 @@ abstract class AbstractService implements ServiceInterface
     }
 
     /**
+     * Escape value for safe interpolation into JavaScript string literal.
+     * Use json_encode to produce a valid JS string (with quotes).
+     */
+    protected function jsEncode(mixed $value): string
+    {
+        return json_encode((string) $value, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP);
+    }
+
+    /**
+     * Escape for HTML attribute context.
+     */
+    protected function escAttr(string $value): string
+    {
+        return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+    }
+
+    /**
+     * Validate that a value matches expected format (alphanumeric + dashes).
+     * Returns sanitized value or empty string.
+     */
+    protected function sanitizeId(string $value): string
+    {
+        return preg_match('/^[a-zA-Z0-9_\-]+$/', $value) ? $value : '';
+    }
+
+    /**
+     * Validate URL: must be https with allowed host.
+     */
+    protected function sanitizeUrl(string $url, array $allowedHosts = []): string
+    {
+        $parsed = parse_url($url);
+        if (!$parsed || !isset($parsed['scheme'], $parsed['host'])) {
+            return '';
+        }
+        if (!in_array($parsed['scheme'], ['https', 'http'], true)) {
+            return '';
+        }
+        if (!empty($allowedHosts) && !in_array($parsed['host'], $allowedHosts, true)) {
+            return '';
+        }
+        return $url;
+    }
+
+    /**
      * Check if a required field has a value.
      */
     protected function isConfigured(): bool

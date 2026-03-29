@@ -182,7 +182,8 @@ class YandexMetrika extends AbstractService
         }
 
         $optionsJson = json_encode($options, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-        $counterId = (int) $id;
+        $safeCounterId = $this->jsEncode($this->sanitizeId((string) $id));
+        $safeScriptUrl = $this->jsEncode($scriptUrl);
 
         return <<<HTML
 <!-- Yandex.Metrika counter (scriptHub) -->
@@ -191,8 +192,8 @@ class YandexMetrika extends AbstractService
 m[i].l=1*new Date();
 for(var j=0;j<document.scripts.length;j++){if(document.scripts[j].src===r){return}}
 k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
-(window,document,"script","{$scriptUrl}","ym");
-ym({$counterId},"init",{$optionsJson});
+(window,document,"script",{$safeScriptUrl},"ym");
+ym({$safeCounterId},"init",{$optionsJson});
 </script>
 <!-- /Yandex.Metrika counter -->
 HTML;
@@ -205,7 +206,7 @@ HTML;
             return '';
         }
 
-        $counterId = (int) $id;
-        return '<noscript><div><img src="https://mc.yandex.ru/watch/' . $counterId . '" style="position:absolute;left:-9999px" alt="" /></div></noscript>';
+        $safeCounterId = $this->escAttr($this->sanitizeId((string) $id));
+        return '<noscript><div><img src="https://mc.yandex.ru/watch/' . $safeCounterId . '" style="position:absolute;left:-9999px" alt="" /></div></noscript>';
     }
 }

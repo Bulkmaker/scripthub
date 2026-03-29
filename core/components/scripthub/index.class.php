@@ -21,7 +21,7 @@ abstract class ScriptHubManagerController extends modExtraManagerController
 
     public function checkPermissions(): bool
     {
-        return true;
+        return $this->modx->hasPermission('settings');
     }
 }
 

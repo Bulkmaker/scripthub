@@ -90,7 +90,8 @@ class Matomo extends AbstractService
             return '';
         }
 
-        $escapedUrl = htmlspecialchars($siteUrl, ENT_QUOTES, 'UTF-8');
+        $jsUrl = $this->jsEncode($siteUrl);
+        $jsSiteId = $this->jsEncode((string) $siteId);
 
         $extraCommands = '';
         if ($this->cfg('track_links', true)) {
@@ -105,9 +106,9 @@ class Matomo extends AbstractService
 <script>
 var _paq=window._paq=window._paq||[];
 _paq.push(['trackPageView']);{$extraCommands}
-(function(){var u="{$escapedUrl}/";
+(function(){var u={$jsUrl}+"/";
 _paq.push(['setTrackerUrl',u+'matomo.php']);
-_paq.push(['setSiteId','{$siteId}']);
+_paq.push(['setSiteId',{$jsSiteId}]);
 var d=document,g=d.createElement('script'),s=d.getElementsByTagName('script')[0];
 g.async=true;g.src=u+'matomo.js';s.parentNode.insertBefore(g,s);
 })();
@@ -124,8 +125,8 @@ HTML;
             return '';
         }
 
-        $escapedUrl = htmlspecialchars($siteUrl, ENT_QUOTES, 'UTF-8');
+        $attrUrl = $this->escAttr($siteUrl);
 
-        return '<noscript><p><img src="' . $escapedUrl . '/matomo.php?idsite=' . $siteId . '&amp;rec=1" style="border:0" alt="" /></p></noscript>';
+        return '<noscript><p><img src="' . $attrUrl . '/matomo.php?idsite=' . $siteId . '&amp;rec=1" style="border:0" alt="" /></p></noscript>';
     }
 }
