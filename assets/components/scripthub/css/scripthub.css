@@ -1,0 +1,124 @@
+/* scriptHub — CMP styles */
+
+/**
+ * Box-sizing isolation for PrimeVue inside MODX manager.
+ * PrimeVue 4 injects global * { box-sizing: border-box; } at runtime
+ * which breaks ExtJS layout. Reset globally and restore for Vue only.
+ */
+* {
+    box-sizing: content-box !important;
+}
+
+*, ::before, ::after {
+    box-sizing: inherit !important;
+}
+
+.vueApp *,
+.vueApp *::before,
+.vueApp *::after,
+.p-drawer *,
+.p-drawer *::before,
+.p-drawer *::after,
+.p-dialog *,
+.p-confirm-dialog *,
+.p-toast *,
+.p-popover *,
+.p-component,
+.p-component * {
+    box-sizing: border-box !important;
+}
+
+/* App container */
+#scripthub-admin-app {
+    padding: 1rem;
+    min-height: 400px;
+}
+
+/* Card styles */
+#scripthub-admin-app .service-card {
+    transition: box-shadow 0.2s ease;
+    background: #fff;
+}
+
+#scripthub-admin-app .service-card:hover {
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+/* Category headers */
+#scripthub-admin-app .category-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+#scripthub-admin-app .category-header i {
+    font-size: 1.25rem;
+}
+
+/* Code preview */
+#scripthub-admin-app .script-preview {
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    background: var(--p-surface-900, #1e1e1e);
+    color: var(--p-surface-100, #d4d4d4);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+/*
+ * PrimeVue Drawer renders overlay outside .vueApp scope,
+ * so VueTools scoped styles don't apply. Override directly.
+ */
+.p-drawer-mask {
+    position: fixed !important;
+    z-index: 10000 !important;
+}
+
+.p-drawer {
+    background: #fff !important;
+    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15) !important;
+}
+
+.p-drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.p-drawer-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.p-drawer-content {
+    padding: 1.5rem;
+    overflow-y: auto;
+}
+
+.p-drawer-close-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    color: #6b7280;
+}
+
+.p-drawer-close-button:hover {
+    background: #f3f4f6;
+}
+
+/* Reset MODX manager input styles inside Vue app */
+#scripthub-admin-app input[type="text"],
+#scripthub-admin-app textarea,
+.p-drawer input[type="text"],
+.p-drawer textarea {
+    font-family: inherit;
+}

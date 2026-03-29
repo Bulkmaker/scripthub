@@ -1,0 +1,14 @@
+{
+    "name": "renderroom/scripthub",
+    "description": "Script management hub for MODX 3 — analytics, pixels, chats, lead generation",
+    "type": "modx-extra",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "RenderRoom\\ScriptHub\\": "src/"
+        }
+    }
+}
