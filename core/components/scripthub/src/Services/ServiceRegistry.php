@@ -43,8 +43,18 @@ class ServiceRegistry
                 continue;
             }
 
-            foreach (glob($path . '/*.php') as $file) {
-                $className = $namespace . basename($file, '.php');
+            // Each service lives in its own subfolder: Category/ServiceName/ServiceName.php
+            foreach (scandir($path) as $entry) {
+                if ($entry === '.' || $entry === '..') {
+                    continue;
+                }
+                $subDir = $path . '/' . $entry;
+                $file = $subDir . '/' . $entry . '.php';
+                if (!is_dir($subDir) || !file_exists($file)) {
+                    continue;
+                }
+
+                $className = $namespace . $entry . '\\' . $entry;
                 if (!class_exists($className)) {
                     continue;
                 }

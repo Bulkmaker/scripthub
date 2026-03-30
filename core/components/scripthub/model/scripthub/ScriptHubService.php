@@ -7,6 +7,7 @@ use xPDO\xPDO;
  * Class ScriptHubService
  *
  * @property string $service_key
+ * @property boolean $added
  * @property boolean $enabled
  * @property string $config
  * @property integer $position

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RenderRoom\ScriptHub\Services\Pixels;
+namespace RenderRoom\ScriptHub\Services\Pixels\VkPixel;
 
 use RenderRoom\ScriptHub\Services\AbstractService;
 use RenderRoom\ScriptHub\Services\FieldType;

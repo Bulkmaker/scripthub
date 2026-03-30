@@ -18,6 +18,7 @@ class ScriptHubService extends \scripthub\ScriptHubService
         'fields' => 
         array (
             'service_key' => '',
+            'added' => 0,
             'enabled' => 0,
             'config' => NULL,
             'position' => 0,
@@ -34,7 +35,16 @@ class ScriptHubService extends \scripthub\ScriptHubService
                 'null' => false,
                 'default' => '',
             ),
-            'enabled' => 
+            'added' =>
+            array (
+                'dbtype' => 'tinyint',
+                'precision' => '1',
+                'attributes' => 'unsigned',
+                'phptype' => 'boolean',
+                'null' => false,
+                'default' => 0,
+            ),
+            'enabled' =>
             array (
                 'dbtype' => 'tinyint',
                 'precision' => '1',

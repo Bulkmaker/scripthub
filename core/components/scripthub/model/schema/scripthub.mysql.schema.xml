@@ -6,6 +6,8 @@
             extends="xPDOSimpleObject">
         <field key="service_key" dbtype="varchar" precision="100"
                phptype="string" null="false" default="" />
+        <field key="added" dbtype="tinyint" precision="1"
+               attributes="unsigned" phptype="boolean" null="false" default="0" />
         <field key="enabled" dbtype="tinyint" precision="1"
                attributes="unsigned" phptype="boolean" null="false" default="0" />
         <field key="config" dbtype="mediumtext"

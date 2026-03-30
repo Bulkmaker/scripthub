@@ -6,7 +6,7 @@ namespace RenderRoom\ScriptHub\Processors\Service;
 
 use MODX\Revolution\Processors\Processor;
 
-class Update extends Processor
+class Add extends Processor
 {
     public function checkPermissions(): bool
     {
@@ -16,7 +16,6 @@ class Update extends Processor
     public function process(): mixed
     {
         $serviceKey = $this->getProperty('service_key', '');
-        $configRaw = $this->getProperty('config', '');
 
         if (empty($serviceKey) || !preg_match('/^[a-z0-9\-]{1,50}$/', $serviceKey)) {
             return $this->failure('Invalid service_key');
@@ -30,43 +29,34 @@ class Update extends Processor
             return $this->failure('Service not found');
         }
 
-        // Parse config
-        $config = is_string($configRaw) ? (json_decode($configRaw, true) ?? []) : (array) $configRaw;
-
-        // Filter config to only allowed keys from field definitions
-        $allowedKeys = array_column($service->getFields(), 'key');
-        $config = array_intersect_key($config, array_flip($allowedKeys));
-
-        // Validate
-        $errors = $service->validate($config);
-        if (!empty($errors)) {
-            return $this->failure('Validation failed', ['errors' => $errors]);
+        // Get max position
+        $maxPos = 0;
+        $rows = $this->modx->getCollection(\scripthub\ScriptHubService::class);
+        foreach ($rows as $r) {
+            $pos = (int) $r->get('position');
+            if ($pos > $maxPos) {
+                $maxPos = $pos;
+            }
         }
 
-        // Save to DB (upsert)
+        // Upsert
         $row = $this->modx->getObject(\scripthub\ScriptHubService::class, ['service_key' => $serviceKey]);
         if (!$row) {
             $row = $this->modx->newObject(\scripthub\ScriptHubService::class);
             $row->set('service_key', $serviceKey);
+            $row->set('config', '{}');
+            $row->set('enabled', false);
             $row->set('created_at', date('Y-m-d H:i:s'));
         }
 
-        $row->set('config', json_encode($config, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+        $row->set('added', true);
+        $row->set('position', $maxPos + 1);
         $row->set('updated_at', date('Y-m-d H:i:s'));
 
-        // Auto-enable if all required fields are filled
-        $service->setConfig($config);
-        if (!$row->get('enabled') && $service->isConfigured()) {
-            $row->set('enabled', true);
-        }
-
         if (!$row->save()) {
-            return $this->failure('Failed to save service config');
+            return $this->failure('Failed to add service');
         }
 
-        // Update service in memory with full DB row
-        $service->hydrate($row->toArray());
-
-        return $this->success('', $service->toArray());
+        return $this->success('');
     }
 }

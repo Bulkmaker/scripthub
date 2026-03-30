@@ -77,6 +77,11 @@
     z-index: 10000 !important;
 }
 
+/* Dialog inside Drawer must be above Drawer's mask */
+.p-dialog-mask {
+    z-index: 10001 !important;
+}
+
 .p-drawer {
     background: #fff !important;
     box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15) !important;

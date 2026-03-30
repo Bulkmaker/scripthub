@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RenderRoom\ScriptHub\Services\Analytics;
+namespace RenderRoom\ScriptHub\Services\Analytics\YandexMetrika;
 
 use RenderRoom\ScriptHub\Services\AbstractService;
 use RenderRoom\ScriptHub\Services\FieldType;

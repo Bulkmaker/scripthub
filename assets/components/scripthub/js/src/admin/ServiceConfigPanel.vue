@@ -69,13 +69,44 @@
                     @click="store.closePanel"
                 />
             </div>
+
+            <!-- Remove -->
+            <Divider style="margin:1.5rem 0 1rem" />
+            <Button
+                label="Удалить сервис"
+                icon="pi pi-trash"
+                severity="danger"
+                text
+                size="small"
+                @click="showRemoveConfirm = true"
+            />
+
+            <!-- Remove confirm dialog -->
+            <Dialog
+                v-model:visible="showRemoveConfirm"
+                :header="`Удалить «${store.activeService.name}»?`"
+                modal
+                :style="{ width: 'min(400px, 90vw)' }"
+            >
+                <p style="margin:0 0 1rem;font-size:0.9rem;color:var(--p-text-muted-color)">
+                    Сервис будет отключён и убран с дашборда.
+                </p>
+                <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1.25rem">
+                    <Checkbox v-model="clearConfigOnRemove" :binary="true" inputId="clearConfig" />
+                    <label for="clearConfig" style="font-size:0.85rem;cursor:pointer">Очистить настройки</label>
+                </div>
+                <div style="display:flex;justify-content:flex-end;gap:0.5rem">
+                    <Button label="Отмена" severity="secondary" outlined size="small" @click="showRemoveConfirm = false" />
+                    <Button label="Удалить" severity="danger" size="small" icon="pi pi-trash" @click="onRemove" />
+                </div>
+            </Dialog>
         </template>
     </Drawer>
 </template>
 
 <script setup>
 import { ref, watch } from 'vue'
-import { Drawer, Button, Divider } from 'primevue'
+import { Drawer, Button, Divider, Dialog, Checkbox } from 'primevue'
 import { useServiceStore } from '../stores/serviceStore.js'
 import ServiceFieldRenderer from './ServiceFieldRenderer.vue'
 import ScriptPreview from './ScriptPreview.vue'
@@ -84,10 +115,11 @@ const store = useServiceStore()
 const localConfig = ref({})
 const errors = ref({})
 const refreshing = ref(false)
+const showRemoveConfirm = ref(false)
+const clearConfigOnRemove = ref(false)
 
 watch(() => store.activeService, (service) => {
     if (service) {
-        // Initialize config with defaults from fields
         const cfg = { ...service.config }
         for (const field of service.fields) {
             if (cfg[field.key] === undefined && field.default !== undefined) {
@@ -96,6 +128,8 @@ watch(() => store.activeService, (service) => {
         }
         localConfig.value = cfg
         errors.value = {}
+        showRemoveConfirm.value = false
+        clearConfigOnRemove.value = false
     }
 }, { immediate: true })
 
@@ -107,6 +141,11 @@ async function onSave() {
     } else {
         store.closePanel()
     }
+}
+
+async function onRemove() {
+    await store.removeService(store.activeService.key, clearConfigOnRemove.value)
+    showRemoveConfirm.value = false
 }
 
 async function onRefreshAsset() {

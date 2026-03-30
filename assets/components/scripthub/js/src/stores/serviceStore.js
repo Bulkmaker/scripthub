@@ -10,6 +10,7 @@ export const useServiceStore = defineStore('serviceStore', () => {
     const saving = ref(false)
     const activeService = ref(null)
     const panelVisible = ref(false)
+    const addDialogVisible = ref(false)
     const searchQuery = ref('')
 
     const categories = [
@@ -19,25 +20,42 @@ export const useServiceStore = defineStore('serviceStore', () => {
         { key: 'leadgen', label: 'Лидогенерация', icon: 'pi pi-megaphone' },
     ]
 
-    const filteredServices = computed(() => {
-        if (!searchQuery.value) return services.value
-        const q = searchQuery.value.toLowerCase()
-        return services.value.filter(s =>
-            s.name.toLowerCase().includes(q) ||
-            s.description.toLowerCase().includes(q)
-        )
+    // Services added to dashboard, sorted by position
+    const addedServices = computed(() => {
+        return services.value
+            .filter(s => s.added)
+            .sort((a, b) => a.position - b.position)
     })
 
-    const grouped = computed(() => {
+    // Services available to add (not yet on dashboard)
+    const availableServices = computed(() => {
+        return services.value.filter(s => !s.added)
+    })
+
+    // Available services grouped by category (for add dialog)
+    const availableGrouped = computed(() => {
         const groups = {}
         for (const cat of categories) {
-            groups[cat.key] = filteredServices.value.filter(s => s.category === cat.key)
+            const items = availableServices.value.filter(s => s.category === cat.key)
+            if (items.length) {
+                groups[cat.key] = items
+            }
         }
         return groups
     })
 
     const enabledCount = computed(() => {
         return services.value.filter(s => s.enabled).length
+    })
+
+    // Filtered added services for search on dashboard
+    const filteredAdded = computed(() => {
+        if (!searchQuery.value) return addedServices.value
+        const q = searchQuery.value.toLowerCase()
+        return addedServices.value.filter(s =>
+            s.name.toLowerCase().includes(q) ||
+            s.description.toLowerCase().includes(q)
+        )
     })
 
     async function fetchAll() {
@@ -85,6 +103,66 @@ export const useServiceStore = defineStore('serviceStore', () => {
         }
     }
 
+    async function addService(serviceKey) {
+        try {
+            const res = await api.addService(serviceKey)
+            if (res.success !== false) {
+                const idx = services.value.findIndex(s => s.key === serviceKey)
+                if (idx !== -1) {
+                    services.value[idx].added = true
+                    services.value[idx].position = Math.max(
+                        ...services.value.filter(s => s.added).map(s => s.position), 0
+                    ) + 1
+                }
+                // Open config panel for new service
+                addDialogVisible.value = false
+                const service = services.value.find(s => s.key === serviceKey)
+                if (service) {
+                    openPanel(service)
+                }
+            }
+            return res
+        } catch (e) {
+            console.error('[scriptHub] Add service failed:', e)
+        }
+    }
+
+    async function removeService(serviceKey, clearConfig = false) {
+        try {
+            const res = await api.removeService(serviceKey, clearConfig)
+            if (res.success !== false) {
+                const idx = services.value.findIndex(s => s.key === serviceKey)
+                if (idx !== -1) {
+                    services.value[idx].added = false
+                    services.value[idx].enabled = false
+                    if (clearConfig) {
+                        services.value[idx].config = {}
+                        services.value[idx].configured = false
+                    }
+                }
+                closePanel()
+            }
+            return res
+        } catch (e) {
+            console.error('[scriptHub] Remove service failed:', e)
+        }
+    }
+
+    async function sortServices(order) {
+        try {
+            // Update local positions immediately
+            for (const item of order) {
+                const idx = services.value.findIndex(s => s.key === item.key)
+                if (idx !== -1) {
+                    services.value[idx].position = item.position
+                }
+            }
+            await api.sortServices(order)
+        } catch (e) {
+            console.error('[scriptHub] Sort failed:', e)
+        }
+    }
+
     async function refreshAsset(serviceKey) {
         try {
             return await api.refreshAsset(serviceKey)
@@ -109,14 +187,20 @@ export const useServiceStore = defineStore('serviceStore', () => {
         saving,
         activeService,
         panelVisible,
+        addDialogVisible,
         searchQuery,
         categories,
-        grouped,
+        addedServices,
+        availableServices,
+        availableGrouped,
         enabledCount,
-        filteredServices,
+        filteredAdded,
         fetchAll,
         saveConfig,
         toggle,
+        addService,
+        removeService,
+        sortServices,
         refreshAsset,
         openPanel,
         closePanel,

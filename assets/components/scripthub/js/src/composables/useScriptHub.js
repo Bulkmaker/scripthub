@@ -42,6 +42,9 @@ export function useScriptHub() {
         getService: (key) => request(NS + 'Get', { service_key: key }),
         updateService: (key, config) => request(NS + 'Update', { service_key: key, config }, 'POST'),
         toggleService: (key, enabled) => request(NS + 'Toggle', { service_key: key, enabled: enabled ? 1 : 0 }, 'POST'),
+        addService: (key) => request(NS + 'Add', { service_key: key }, 'POST'),
+        removeService: (key, clearConfig) => request(NS + 'Remove', { service_key: key, clear_config: clearConfig ? 1 : 0 }, 'POST'),
+        sortServices: (order) => request(NS + 'Sort', { order }, 'POST'),
         refreshAsset: (key) => request(NS + 'RefreshAsset', { service_key: key }, 'POST'),
     }
 }

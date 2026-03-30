@@ -6,7 +6,12 @@
     >
         <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:0.75rem">
             <div style="display:flex;align-items:center;gap:0.625rem">
-                <i :class="service.icon" style="font-size:1.5rem;color:var(--p-primary-color)"></i>
+                <span
+                    v-if="service.iconSvg"
+                    v-html="service.iconSvg"
+                    style="width:28px;height:28px;flex-shrink:0;display:flex;align-items:center;justify-content:center"
+                ></span>
+                <i v-else :class="service.icon" style="font-size:1.5rem;color:var(--p-primary-color)"></i>
                 <div>
                     <div style="font-weight:600;font-size:0.95rem">{{ service.name }}</div>
                 </div>

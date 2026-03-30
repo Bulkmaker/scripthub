@@ -11,6 +11,7 @@ abstract class AbstractService implements ServiceInterface
 {
     protected modX $modx;
     protected bool $enabled = false;
+    protected bool $added = false;
     protected array $config = [];
     protected int $position = 0;
 
@@ -39,6 +40,23 @@ abstract class AbstractService implements ServiceInterface
         return $this->enabled;
     }
 
+    public function isAdded(): bool
+    {
+        return $this->added;
+    }
+
+    /**
+     * Read SVG icon from the service's own directory.
+     */
+    public function getIconSvg(): string
+    {
+        $path = dirname((new \ReflectionClass($this))->getFileName()) . '/icon.svg';
+        if (file_exists($path)) {
+            return file_get_contents($path);
+        }
+        return '';
+    }
+
     public function getConfig(): array
     {
         return $this->config;
@@ -60,6 +78,7 @@ abstract class AbstractService implements ServiceInterface
     public function hydrate(array $row): void
     {
         $this->enabled = (bool) ($row['enabled'] ?? false);
+        $this->added = (bool) ($row['added'] ?? false);
         $this->config = is_string($row['config'] ?? null)
             ? (json_decode($row['config'], true) ?? [])
             : ($row['config'] ?? []);
@@ -132,7 +151,7 @@ abstract class AbstractService implements ServiceInterface
     /**
      * Check if a required field has a value.
      */
-    protected function isConfigured(): bool
+    public function isConfigured(): bool
     {
         foreach ($this->getFields() as $field) {
             if (($field['required'] ?? false) && empty($this->config[$field['key']] ?? '')) {
@@ -154,10 +173,12 @@ abstract class AbstractService implements ServiceInterface
             'categoryLabel' => $this->getCategory()->label(),
             'categoryIcon' => $this->getCategory()->icon(),
             'icon' => $this->getIcon(),
+            'iconSvg' => $this->getIconSvg(),
             'description' => $this->getDescription(),
             'docsUrl' => $this->getDocsUrl(),
             'injectionPosition' => $this->getInjectionPosition()->value,
             'enabled' => $this->enabled,
+            'added' => $this->added,
             'configured' => $this->isConfigured(),
             'config' => $this->config,
             'position' => $this->position,
