@@ -3,14 +3,12 @@
 /**
  * Box-sizing isolation for PrimeVue inside MODX manager.
  * PrimeVue 4 injects global * { box-sizing: border-box; } at runtime
- * which breaks ExtJS layout. Reset globally and restore for Vue only.
+ * which breaks ExtJS layout. Reset within scriptHub scope only.
  */
-* {
-    box-sizing: content-box !important;
-}
-
-*, ::before, ::after {
-    box-sizing: inherit !important;
+#scripthub-admin-app *,
+#scripthub-admin-app *::before,
+#scripthub-admin-app *::after {
+    box-sizing: content-box;
 }
 
 .vueApp *,
@@ -121,4 +119,65 @@
 .p-drawer input[type="text"],
 .p-drawer textarea {
     font-family: inherit;
+}
+
+/*
+ * PrimeIcons inside Drawer — force font-family.
+ * Drawer renders outside .vueApp at <body> level,
+ * where ExtJS manager styles override font-family on elements.
+ */
+.p-drawer .pi {
+    font-family: 'primeicons' !important;
+    font-style: normal !important;
+    font-weight: normal !important;
+    text-transform: none !important;
+    line-height: 1 !important;
+    display: inline-block !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Header layout */
+.scripthub-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--p-content-border-color, #e5e7eb);
+}
+
+.scripthub-search {
+    width: 260px;
+    flex-shrink: 0;
+}
+
+/* Drawer responsive width */
+.scripthub-drawer {
+    width: min(480px, 100vw) !important;
+}
+
+/* Mobile / narrow viewport */
+@media (max-width: 640px) {
+    .scripthub-header {
+        flex-wrap: wrap;
+    }
+
+    .scripthub-search {
+        width: 100%;
+        flex-shrink: 1;
+    }
+
+    .scripthub-drawer {
+        width: 100vw !important;
+    }
+
+    .p-drawer-header {
+        padding: 0.75rem 1rem;
+    }
+
+    .p-drawer-content {
+        padding: 1rem;
+    }
 }

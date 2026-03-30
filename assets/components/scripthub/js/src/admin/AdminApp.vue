@@ -1,13 +1,23 @@
 <template>
     <div class="scripthub-admin">
-        <div class="scripthub-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
+        <div class="scripthub-header">
             <div style="display:flex;align-items:center;gap:0.75rem">
-                <h2 style="margin:0;font-size:1.5rem;font-weight:600">scriptHub</h2>
-                <Tag :value="`${store.enabledCount} активно`" severity="success" v-if="store.enabledCount > 0" />
+                <div style="display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:10px;background:var(--p-primary-color, #10b981);color:#fff;font-size:1.25rem;flex-shrink:0">
+                    <i class="pi pi-code"></i>
+                </div>
+                <div>
+                    <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap">
+                        <h2 style="margin:0;font-size:1.35rem;font-weight:700;letter-spacing:-0.01em">scriptHub</h2>
+                        <Tag :value="`${store.enabledCount} активно`" severity="success" v-if="store.enabledCount > 0" />
+                    </div>
+                    <div style="font-size:0.8rem;color:var(--p-text-muted-color, #9ca3af);margin-top:2px">
+                        Управление внешними скриптами
+                    </div>
+                </div>
             </div>
-            <IconField>
+            <IconField class="scripthub-search">
                 <InputIcon class="pi pi-search" />
-                <InputText v-model="store.searchQuery" placeholder="Поиск сервисов..." style="width:260px" />
+                <InputText v-model="store.searchQuery" placeholder="Поиск сервисов..." style="width:100%" />
             </IconField>
         </div>
 

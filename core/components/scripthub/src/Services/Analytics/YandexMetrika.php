@@ -47,7 +47,7 @@ class YandexMetrika extends AbstractService
             [
                 'key' => 'counter_id',
                 'label' => 'ID счётчика',
-                'type' => FieldType::Text->value,
+                'type' => FieldType::Number->value,
                 'required' => true,
                 'placeholder' => '12345678',
                 'helpText' => 'Номер счётчика из настроек Яндекс Метрики',

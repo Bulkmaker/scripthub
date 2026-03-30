@@ -3,28 +3,30 @@
         v-model:visible="store.panelVisible"
         position="right"
         :header="store.activeService?.name || 'Настройки'"
-        style="width:480px"
+        class="scripthub-drawer"
         appendTo="self"
         @hide="store.closePanel"
     >
         <template v-if="store.activeService">
-            <div style="margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem">
-                <i :class="store.activeService.icon" style="font-size:1.25rem;color:var(--p-primary-color)"></i>
-                <span style="font-size:0.85rem;color:var(--p-text-muted-color)">{{ store.activeService.description }}</span>
-            </div>
+            <!-- Description -->
+            <p style="margin:0;padding:1rem 0;font-size:0.85rem;color:var(--p-text-muted-color);line-height:1.45">{{ store.activeService.description }}</p>
 
+            <!-- Docs link -->
             <a
                 v-if="store.activeService.docsUrl"
                 :href="store.activeService.docsUrl"
                 target="_blank"
-                style="display:inline-flex;align-items:center;gap:0.375rem;font-size:0.8rem;margin-bottom:1.25rem;text-decoration:none"
+                rel="noopener"
+                style="display:inline-flex;align-items:center;gap:0.5rem;font-size:0.85rem;padding:0.5rem 1rem;border-radius:6px;background:var(--p-primary-50, #ecfdf5);color:var(--p-primary-color, #10b981);text-decoration:none;font-weight:500;transition:background 0.15s"
             >
-                <i class="pi pi-external-link" style="font-size:0.75rem"></i>
+                <span class="pi pi-book" style="font-size:1rem"></span>
                 Документация
+                <span class="pi pi-external-link" style="font-size:0.75rem;opacity:0.7"></span>
             </a>
 
-            <Divider />
+            <Divider style="margin:1rem 0" />
 
+            <!-- Fields -->
             <ServiceFieldRenderer
                 :fields="store.activeService.fields"
                 :config="localConfig"
@@ -43,7 +45,7 @@
                 />
             </div>
 
-            <Divider />
+            <Divider style="margin:1rem 0" />
 
             <!-- Script Preview -->
             <ScriptPreview
@@ -51,6 +53,7 @@
                 :serviceKey="store.activeService.key"
             />
 
+            <!-- Actions -->
             <div style="display:flex;gap:0.75rem;margin-top:1.5rem">
                 <Button
                     label="Сохранить"
