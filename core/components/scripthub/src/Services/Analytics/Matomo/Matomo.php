@@ -74,6 +74,21 @@ class Matomo extends AbstractService
                 'default' => false,
                 'helpText' => 'Отключить использование cookie для соответствия GDPR',
             ],
+            [
+                'key' => 'secure_cookie',
+                'label' => 'Secure cookie',
+                'type' => FieldType::Toggle->value,
+                'default' => true,
+                'helpText' => 'Только для HTTPS-сайтов: помечать tracking-cookie атрибутом Secure. Игнорируется, если «Без cookie» включено.',
+            ],
+            [
+                'key' => 'cookie_same_site',
+                'label' => 'SameSite cookie',
+                'type' => FieldType::Text->value,
+                'default' => 'Lax',
+                'placeholder' => 'Lax',
+                'helpText' => 'Допустимые значения: Lax, Strict, None. Для cross-site embed нужен None+Secure. Игнорируется, если «Без cookie» включено.',
+            ],
         ];
     }
 
@@ -120,11 +135,22 @@ class Matomo extends AbstractService
         $jsUrl = $this->jsEncode($siteUrl);
         $jsSiteId = $this->jsEncode((string) $siteId);
 
-        // disableCookies должен идти ДО trackPageView — иначе первый pageview
-        // уйдёт с cookies (см. developer.matomo.org/api-reference/tracking-javascript).
+        // Все cookie-настройки ДОЛЖНЫ идти до trackPageView, иначе первый
+        // pageview сходит с дефолтными атрибутами (см.
+        // developer.matomo.org/api-reference/tracking-javascript).
         $preTrack = '';
-        if ($this->cfg('disable_cookies', false)) {
+        $cookiesDisabled = (bool) $this->cfg('disable_cookies', false);
+        if ($cookiesDisabled) {
             $preTrack .= "_paq.push(['disableCookies']);\n";
+        } else {
+            if ($this->cfg('secure_cookie', true)) {
+                $preTrack .= "_paq.push(['setSecureCookie',true]);\n";
+            }
+            $sameSite = ucfirst(strtolower(trim((string) $this->cfg('cookie_same_site', 'Lax'))));
+            if (in_array($sameSite, ['Lax', 'Strict', 'None'], true)) {
+                $safeSameSite = $this->jsEncode($sameSite);
+                $preTrack .= "_paq.push(['setCookieSameSite',{$safeSameSite}]);\n";
+            }
         }
         $postTrack = '';
         if ($this->cfg('track_links', true)) {
