@@ -33,27 +33,19 @@ class Callibri extends AbstractService
 
     public function getDescription(): string
     {
-        return 'Callibri — МультиЧат, обратный звонок, коллтрекинг и аналитика рекламы';
+        return 'Callibri — МультиЧат, обратный звонок, коллтрекинг и аналитика рекламы. Привязка к проекту настраивается в личном кабинете Callibri по домену сайта — дополнительных параметров вводить не нужно.';
     }
 
     public function getDocsUrl(): string
     {
-        return 'https://callibri.ru/help';
+        return 'https://callibri.ru/help/ustanovka_skripta_callibri/kak_ustanovit_skript_callibri_napryamuyu_v_kod_sayta';
     }
 
     public function getFields(): array
     {
-        return [
-            [
-                'key' => 'site_id',
-                'label' => 'ID сайта',
-                'type' => FieldType::Text->value,
-                'required' => true,
-                'default' => '',
-                'placeholder' => 'abc123def456',
-                'helpText' => 'Идентификатор сайта из личного кабинета Callibri (Настройки → Код для сайта)',
-            ],
-        ];
+        // Callibri идентифицирует сайт по домену из личного кабинета,
+        // runtime-параметров (site_id и т.п.) официальный snippet не принимает.
+        return [];
     }
 
     public function getInjectionPosition(): InjectionPosition
@@ -63,24 +55,9 @@ class Callibri extends AbstractService
 
     public function render(): string
     {
-        $rawSiteId = (string) $this->cfg('site_id');
-        if (empty($rawSiteId)) {
-            return '';
-        }
-
-        $cleanSiteId = $this->sanitizeId($rawSiteId);
-        if ($cleanSiteId === '') {
-            return '';
-        }
-        $safeSiteId = $this->jsEncode($cleanSiteId);
-
         return <<<HTML
 <!-- Callibri (scriptHub) -->
-<script src="https://cdn.callibri.ru/callibri.js" type="text/javascript" charset="utf-8"></script>
-<script type="text/javascript">
-window.callibri_data = window.callibri_data || [];
-callibri_data.push({site_id: {$safeSiteId}});
-</script>
+<script src="//cdn.callibri.ru/callibri.js" type="text/javascript" charset="utf-8" defer></script>
 <!-- /Callibri -->
 HTML;
     }

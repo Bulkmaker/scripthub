@@ -33,40 +33,32 @@ class YandexMessenger extends AbstractService
 
     public function getDescription(): string
     {
-        return 'Чат для бизнеса от Яндекса -- виджет онлайн-консультанта на сайте';
+        return 'Чаты для бизнеса от Яндекса — виджет онлайн-консультанта на сайте, единый GUID чата из личного кабинета';
     }
 
     public function getDocsUrl(): string
     {
-        return 'https://yandex.ru/chat/business';
+        return 'https://yandex.ru/support/business-chats/widget.html';
     }
 
     public function getFields(): array
     {
         return [
             [
-                'key' => 'org_id',
-                'label' => 'ID организации',
+                'key' => 'guid',
+                'label' => 'GUID чата',
                 'type' => FieldType::Text->value,
                 'required' => true,
                 'placeholder' => 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
-                'helpText' => 'Идентификатор организации из Яндекс Мессенджера для бизнеса',
+                'helpText' => 'Идентификатор чата из ЛК «Чаты для бизнеса» Яндекса (Настройки чата → Виджет → GUID)',
             ],
             [
-                'key' => 'chat_id',
-                'label' => 'ID чата',
+                'key' => 'theme',
+                'label' => 'Тема оформления',
                 'type' => FieldType::Text->value,
-                'required' => true,
-                'placeholder' => 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
-                'helpText' => 'Идентификатор чат-канала',
-            ],
-            [
-                'key' => 'color',
-                'label' => 'Цвет виджета',
-                'type' => FieldType::Text->value,
-                'default' => '',
-                'placeholder' => '#FFD700',
-                'helpText' => 'HEX-цвет кнопки и заголовка чата (оставьте пустым для цвета по умолчанию)',
+                'default' => 'light',
+                'placeholder' => 'light',
+                'helpText' => 'Допустимые значения: light, dark',
             ],
         ];
     }
@@ -78,37 +70,33 @@ class YandexMessenger extends AbstractService
 
     public function render(): string
     {
-        $orgId = $this->cfg('org_id');
-        $chatId = $this->cfg('chat_id');
-        if (empty($orgId) || empty($chatId)) {
+        $guid = (string) $this->cfg('guid');
+        if (empty($guid)) {
             return '';
         }
-
-        $cleanOrgId = $this->sanitizeId((string) $orgId);
-        $cleanChatId = $this->sanitizeId((string) $chatId);
-        if ($cleanOrgId === '' || $cleanChatId === '') {
+        // Принимаем UUID с дефисами — sanitizeId() это разрешает.
+        $cleanGuid = $this->sanitizeId($guid);
+        if ($cleanGuid === '') {
             return '';
         }
-        $safeOrgId = $this->jsEncode($cleanOrgId);
-        $safeChatId = $this->jsEncode($cleanChatId);
+        $safeGuid = $this->jsEncode($cleanGuid);
 
-        $colorOption = '';
-        $color = $this->cfg('color', '');
-        if (!empty($color)) {
-            $safeColor = $this->jsEncode((string) $color);
-            $colorOption = ",color:{$safeColor}";
+        $themeOption = '';
+        $theme = strtolower(trim((string) $this->cfg('theme', '')));
+        if (in_array($theme, ['light', 'dark'], true)) {
+            $safeTheme = $this->jsEncode($theme);
+            $themeOption = ",theme:{$safeTheme}";
         }
 
         return <<<HTML
-<!-- Yandex Messenger (scriptHub) -->
+<!-- Yandex Chat Widget (scriptHub) -->
 <script>
-(function(){var w=window,d=document,s=d.createElement('script');
-s.src='https://chat.s3.yandex.net/widget.js';s.async=true;
-s.onload=function(){
-Ya.Chat.Widget.open({serviceId:{$safeOrgId},chatId:{$safeChatId}{$colorOption}});
-};d.body.appendChild(s);})();
+window.yandexChatWidgetCallback=function(){new YandexChatWidget({guid:{$safeGuid}{$themeOption}});};
+(function(){var s=document.createElement('script');s.async=true;
+s.src='https://yastatic.net/s3/chat/widget.js';
+document.head.appendChild(s);})();
 </script>
-<!-- /Yandex Messenger -->
+<!-- /Yandex Chat Widget -->
 HTML;
     }
 }

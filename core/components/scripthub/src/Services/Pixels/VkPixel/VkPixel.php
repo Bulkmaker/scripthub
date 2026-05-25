@@ -50,7 +50,7 @@ class VkPixel extends AbstractService
                 'type' => FieldType::Text->value,
                 'required' => true,
                 'placeholder' => 'VK-RTRG-000000-XXXXX',
-                'helpText' => 'Идентификатор пикселя из кабинета VK Рекламы (формат VK-RTRG-XXXXX-XXXXX)',
+                'helpText' => 'Legacy VK Pixel (target.my.com) формата VK-RTRG-XXXXX-XXXXX. Для новых пикселей из ads.vk.ru с числовым ID используйте сервис «Top.Mail.Ru / MyTarget» — это и есть новый VK Smart Pixel.',
             ],
         ];
     }

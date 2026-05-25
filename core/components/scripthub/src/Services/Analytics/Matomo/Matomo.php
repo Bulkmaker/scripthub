@@ -120,19 +120,22 @@ class Matomo extends AbstractService
         $jsUrl = $this->jsEncode($siteUrl);
         $jsSiteId = $this->jsEncode((string) $siteId);
 
-        $extraCommands = '';
-        if ($this->cfg('track_links', true)) {
-            $extraCommands .= "\n_paq.push(['enableLinkTracking']);";
-        }
+        // disableCookies должен идти ДО trackPageView — иначе первый pageview
+        // уйдёт с cookies (см. developer.matomo.org/api-reference/tracking-javascript).
+        $preTrack = '';
         if ($this->cfg('disable_cookies', false)) {
-            $extraCommands .= "\n_paq.push(['disableCookies']);";
+            $preTrack .= "_paq.push(['disableCookies']);\n";
+        }
+        $postTrack = '';
+        if ($this->cfg('track_links', true)) {
+            $postTrack .= "\n_paq.push(['enableLinkTracking']);";
         }
 
         return <<<HTML
 <!-- Matomo (scriptHub) -->
 <script>
 var _paq=window._paq=window._paq||[];
-_paq.push(['trackPageView']);{$extraCommands}
+{$preTrack}_paq.push(['trackPageView']);{$postTrack}
 (function(){var u={$jsUrl}+"/";
 _paq.push(['setTrackerUrl',u+'matomo.php']);
 _paq.push(['setSiteId',{$jsSiteId}]);

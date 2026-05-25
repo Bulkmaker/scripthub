@@ -33,12 +33,12 @@ class SendPulse extends AbstractService
 
     public function getDescription(): string
     {
-        return 'SendPulse -- попап-формы, push-уведомления и чат-боты для сбора лидов';
+        return 'SendPulse — попап-формы, push-уведомления и формы подписки. Для Web Push дополнительно нужно загрузить sw.js и manifest.json в корень сайта.';
     }
 
     public function getDocsUrl(): string
     {
-        return 'https://sendpulse.com/knowledge-base/pop-ups-subscription-forms';
+        return 'https://sendpulse.com/knowledge-base/push-notifications/add-website-send-push-notifications';
     }
 
     public function getFields(): array
@@ -49,8 +49,8 @@ class SendPulse extends AbstractService
                 'label' => 'URL скрипта',
                 'type' => FieldType::Text->value,
                 'required' => true,
-                'placeholder' => 'https://cdn.sendpulse.com/js/push/xxxxxxxx-xxxx.js',
-                'helpText' => 'Полный URL скрипта из раздела Pop-ups > Установка на сайт в SendPulse',
+                'placeholder' => 'https://web.webpushs.com/js/push/xxxxxxxx_1.js',
+                'helpText' => 'Скопируйте полный URL с https:// из ЛК SendPulse. Web Push: web.webpushs.com. Pop-ups: static.sendpulse.com. Subscription forms: static-login.sendpulse.com',
             ],
         ];
     }
@@ -67,7 +67,15 @@ class SendPulse extends AbstractService
             return '';
         }
 
-        $safeUrl = $this->sanitizeUrl((string) $scriptUrl, ['cdn.sendpulse.com', 'static.sendpulse.com']);
+        // Allow-list реальных хостов SendPulse для каждого продукта (Web Push,
+        // pop-ups, subscription forms). См. https://sendpulse.com/knowledge-base.
+        $safeUrl = $this->sanitizeUrl((string) $scriptUrl, [
+            'web.webpushs.com',
+            'static.sendpulse.com',
+            'static-login.sendpulse.com',
+            'login.sendpulse.com',
+            'cdn.sendpulse.com',
+        ]);
         if (empty($safeUrl)) {
             return '';
         }

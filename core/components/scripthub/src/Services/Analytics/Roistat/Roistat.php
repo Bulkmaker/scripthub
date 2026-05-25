@@ -57,7 +57,9 @@ class Roistat extends AbstractService
 
     public function getInjectionPosition(): InjectionPosition
     {
-        return InjectionPosition::Head;
+        // help-ru.roistat.com: рекомендуется перед </body>. <head> — fallback,
+        // на котором number-substitution / call-tracking могут глючить.
+        return InjectionPosition::BodyEnd;
     }
 
     public function render(): string

@@ -53,11 +53,25 @@ class GoogleAnalytics extends AbstractService
                 'helpText' => 'Идентификатор потока данных из настроек GA4 (формат G-XXXXXXX)',
             ],
             [
-                'key' => 'enhanced_measurement',
-                'label' => 'Расширенная статистика',
+                'key' => 'send_page_view',
+                'label' => 'Автоматически отправлять page_view',
                 'type' => FieldType::Toggle->value,
                 'default' => true,
-                'helpText' => 'Автоматическое отслеживание прокрутки, кликов по внешним ссылкам, поиска на сайте и видео',
+                'helpText' => 'Если отключить — gtag не отправит автоматический page_view при загрузке. Расширенное измерение (прокрутка, клики, видео) настраивается в админке GA4, не из кода.',
+            ],
+            [
+                'key' => 'anonymize_ip',
+                'label' => 'Анонимизировать IP',
+                'type' => FieldType::Toggle->value,
+                'default' => true,
+                'helpText' => 'Рекомендуется для соответствия 152-ФЗ и GDPR. Анонимизирует последний октет IPv4 / последние 80 бит IPv6.',
+            ],
+            [
+                'key' => 'allow_ad_personalization_signals',
+                'label' => 'Разрешить персонализацию рекламы',
+                'type' => FieldType::Toggle->value,
+                'default' => false,
+                'helpText' => 'Сигналы для персонализации Google Ads. По умолчанию выключено для GDPR/152-ФЗ.',
             ],
             [
                 'key' => 'debug_mode',
@@ -89,8 +103,15 @@ class GoogleAnalytics extends AbstractService
         $attrMeasurementId = $this->escAttr($safeMeasurementId);
 
         $configParams = [];
-        if (!$this->cfg('enhanced_measurement', true)) {
+        // send_page_view: false эмиттится только если пользователь явно отключил автоматический page_view
+        if (!$this->cfg('send_page_view', true)) {
             $configParams[] = "'send_page_view': false";
+        }
+        if ($this->cfg('anonymize_ip', true)) {
+            $configParams[] = "'anonymize_ip': true";
+        }
+        if (!$this->cfg('allow_ad_personalization_signals', false)) {
+            $configParams[] = "'allow_ad_personalization_signals': false";
         }
         if ($this->cfg('debug_mode', false)) {
             $configParams[] = "'debug_mode': true";

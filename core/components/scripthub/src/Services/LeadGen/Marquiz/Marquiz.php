@@ -64,6 +64,22 @@ class Marquiz extends AbstractService
                 ],
                 'helpText' => 'Способ отображения квиза на сайте',
             ],
+            [
+                'key' => 'auto_open_delay',
+                'label' => 'Авто-открытие попапа (сек)',
+                'type' => FieldType::Text->value,
+                'default' => '3',
+                'placeholder' => '3',
+                'helpText' => 'Через сколько секунд автоматически показать попап (только для типа «попап»). 0 — не открывать автоматически.',
+            ],
+            [
+                'key' => 'container_selector',
+                'label' => 'CSS-селектор контейнера',
+                'type' => FieldType::Text->value,
+                'default' => '#marquiz-container',
+                'placeholder' => '#marquiz-container',
+                'helpText' => 'Для типов «inline» и «кнопка». На странице должен присутствовать элемент с этим селектором — иначе виджет молча не отрендерится.',
+            ],
         ];
     }
 
@@ -84,23 +100,35 @@ class Marquiz extends AbstractService
             return '';
         }
         $safeId = $this->jsEncode($cleanId);
-        $embedType = $this->cfg('embed_type', 'popup');
 
-        $initCode = match ($embedType) {
-            'button' => "Marquiz.showButton({id:{$safeId}});",
-            'inline' => "Marquiz.inline({id:{$safeId},container:'#marquiz-container'});",
-            default => "Marquiz.showPopup({id:{$safeId}});",
-        };
+        $embedType = $this->cfg('embed_type', 'popup');
+        $containerSelector = (string) $this->cfg('container_selector', '#marquiz-container');
+        $safeContainer = $this->jsEncode($containerSelector);
+
+        // accounts-init — без autoOpen для button/inline, чтобы не было «двойного показа».
+        // Для popup autoOpen берётся из настройки.
+        if ($embedType === 'popup') {
+            $autoOpenDelay = max(0, (int) $this->cfg('auto_open_delay', 3));
+            $accountsConfig = $autoOpenDelay > 0
+                ? "{id:{$safeId},autoOpen:{$autoOpenDelay},autoOpenFreq:'once'}"
+                : "{id:{$safeId}}";
+            $extraInit = '';
+        } elseif ($embedType === 'button') {
+            $accountsConfig = "{id:{$safeId}}";
+            $extraInit = "\ndocument.addEventListener('DOMContentLoaded',function(){Marquiz.showButton({id:{$safeId},container:{$safeContainer}});});";
+        } else { // inline
+            $accountsConfig = "{id:{$safeId}}";
+            $extraInit = "\ndocument.addEventListener('DOMContentLoaded',function(){Marquiz.inline({id:{$safeId},container:{$safeContainer}});});";
+        }
 
         return <<<HTML
 <!-- Marquiz (scriptHub) -->
 <script>
 (function(t,p){window.Marquiz?Marquiz.add([t,p]):document.addEventListener('marquizLoaded',function(){Marquiz.add([t,p])})})
-('accounts',{id:{$safeId},autoOpen:3,autoOpenFreq:'once'});
+('accounts',{$accountsConfig});
 (function(){var s=document.createElement('script');s.type='text/javascript';s.async=true;
 s.src='//script.marquiz.io/v2.js';var x=document.getElementsByTagName('script')[0];
-x.parentNode.insertBefore(s,x);})();
-document.addEventListener('DOMContentLoaded',function(){{$initCode}});
+x.parentNode.insertBefore(s,x);})();{$extraInit}
 </script>
 <!-- /Marquiz -->
 HTML;

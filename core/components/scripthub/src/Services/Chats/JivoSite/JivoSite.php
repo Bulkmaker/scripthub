@@ -75,7 +75,7 @@ class JivoSite extends AbstractService
 
         return <<<HTML
 <!-- JivoSite (scriptHub) -->
-<script src="//code.jivosite.com/widget/{$safeId}" async></script>
+<script src="//code.jivo.ru/widget/{$safeId}" async></script>
 <!-- /JivoSite -->
 HTML;
     }
