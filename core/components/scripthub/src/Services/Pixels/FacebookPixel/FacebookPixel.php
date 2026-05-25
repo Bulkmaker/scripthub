@@ -67,7 +67,11 @@ class FacebookPixel extends AbstractService
             return '';
         }
 
-        $safeId = $this->jsEncode($this->sanitizeId((string) $pixelId));
+        $cleanId = $this->sanitizeId((string) $pixelId);
+        if ($cleanId === '') {
+            return '';
+        }
+        $safeId = $this->jsEncode($cleanId);
 
         return <<<HTML
 <!-- Meta Pixel (scriptHub) -->
@@ -90,7 +94,11 @@ HTML;
         if (empty($pixelId)) {
             return '';
         }
-        $safeId = $this->escAttr($this->sanitizeId((string) $pixelId));
+        $cleanId = $this->sanitizeId((string) $pixelId);
+        if ($cleanId === '') {
+            return '';
+        }
+        $safeId = $this->escAttr($cleanId);
         return '<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=' . $safeId . '&ev=PageView&noscript=1" /></noscript>';
     }
 }

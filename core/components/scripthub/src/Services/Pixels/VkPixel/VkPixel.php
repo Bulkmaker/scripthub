@@ -67,7 +67,11 @@ class VkPixel extends AbstractService
             return '';
         }
 
-        $safeId = $this->jsEncode($this->sanitizeId((string) $pixelId));
+        $cleanId = $this->sanitizeId((string) $pixelId);
+        if ($cleanId === '') {
+            return '';
+        }
+        $safeId = $this->jsEncode($cleanId);
 
         return <<<HTML
 <!-- VK Pixel (scriptHub) -->
@@ -86,7 +90,11 @@ HTML;
         if (empty($pixelId)) {
             return '';
         }
-        $safeId = $this->escAttr($this->sanitizeId((string) $pixelId));
+        $cleanId = $this->sanitizeId((string) $pixelId);
+        if ($cleanId === '') {
+            return '';
+        }
+        $safeId = $this->escAttr($cleanId);
         return '<noscript><img src="https://vk.com/rtrg?p=' . $safeId . '" style="position:fixed;left:-999px" alt="" /></noscript>';
     }
 }

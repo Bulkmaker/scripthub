@@ -67,7 +67,11 @@ class CoMagic extends AbstractService
             return '';
         }
 
-        $safeId = $this->jsEncode($this->sanitizeId((string) $siteId));
+        $cleanId = $this->sanitizeId((string) $siteId);
+        if ($cleanId === '') {
+            return '';
+        }
+        $safeId = $this->jsEncode($cleanId);
 
         return <<<HTML
 <!-- CoMagic (scriptHub) -->

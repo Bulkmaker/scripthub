@@ -16,3 +16,10 @@ Thumbs.db
 
 # Self-hosted vendor assets (downloaded at runtime)
 assets/components/scripthub/vendor/
+
+# Internal release docs (vendor account refs, internal workflow) — public repo
+docs/RELEASE.md
+docs/RELEASE-*.md
+_build/
+core/packages/
+*.transport.zip

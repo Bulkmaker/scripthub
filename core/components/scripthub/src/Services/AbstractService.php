@@ -88,9 +88,13 @@ abstract class AbstractService implements ServiceInterface
     public function validate(array $config): array
     {
         $errors = [];
+        $requiredMsg = $this->modx->lexicon('scripthub_field_required');
+        if ($requiredMsg === '' || $requiredMsg === 'scripthub_field_required') {
+            $requiredMsg = 'This field is required';
+        }
         foreach ($this->getFields() as $field) {
             if (($field['required'] ?? false) && empty($config[$field['key']] ?? '')) {
-                $errors[$field['key']] = 'Это поле обязательно';
+                $errors[$field['key']] = $requiredMsg;
             }
         }
         return $errors;

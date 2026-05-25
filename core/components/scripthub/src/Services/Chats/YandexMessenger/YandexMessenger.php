@@ -84,8 +84,13 @@ class YandexMessenger extends AbstractService
             return '';
         }
 
-        $safeOrgId = $this->jsEncode($this->sanitizeId((string) $orgId));
-        $safeChatId = $this->jsEncode($this->sanitizeId((string) $chatId));
+        $cleanOrgId = $this->sanitizeId((string) $orgId);
+        $cleanChatId = $this->sanitizeId((string) $chatId);
+        if ($cleanOrgId === '' || $cleanChatId === '') {
+            return '';
+        }
+        $safeOrgId = $this->jsEncode($cleanOrgId);
+        $safeChatId = $this->jsEncode($cleanChatId);
 
         $colorOption = '';
         $color = $this->cfg('color', '');

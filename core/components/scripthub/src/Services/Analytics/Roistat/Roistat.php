@@ -67,7 +67,11 @@ class Roistat extends AbstractService
             return '';
         }
 
-        $safeId = $this->jsEncode($this->sanitizeId((string) $projectId));
+        $cleanId = $this->sanitizeId((string) $projectId);
+        if ($cleanId === '') {
+            return '';
+        }
+        $safeId = $this->jsEncode($cleanId);
 
         return <<<HTML
 <!-- Roistat (scriptHub) -->

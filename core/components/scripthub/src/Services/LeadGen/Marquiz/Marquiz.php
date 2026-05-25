@@ -79,7 +79,11 @@ class Marquiz extends AbstractService
             return '';
         }
 
-        $safeId = $this->jsEncode($this->sanitizeId((string) $quizId));
+        $cleanId = $this->sanitizeId((string) $quizId);
+        if ($cleanId === '') {
+            return '';
+        }
+        $safeId = $this->jsEncode($cleanId);
         $embedType = $this->cfg('embed_type', 'popup');
 
         $initCode = match ($embedType) {

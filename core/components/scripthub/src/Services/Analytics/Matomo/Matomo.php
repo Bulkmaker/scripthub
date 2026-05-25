@@ -82,11 +82,38 @@ class Matomo extends AbstractService
         return InjectionPosition::Head;
     }
 
+    /**
+     * Parse user-supplied site_url and rebuild from scheme+host+port only.
+     * Drops path/query/fragment/userinfo, blocks non-http(s) schemes.
+     * Returns '' on invalid input.
+     */
+    protected function safeSiteUrl(): string
+    {
+        $raw = rtrim((string) $this->cfg('site_url'), '/');
+        $parsed = @parse_url($raw);
+        if (!is_array($parsed) || empty($parsed['scheme']) || empty($parsed['host'])) {
+            return '';
+        }
+        if (!in_array($parsed['scheme'], ['http', 'https'], true)) {
+            return '';
+        }
+        $hostOk = filter_var($parsed['host'], FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)
+            || filter_var($parsed['host'], FILTER_VALIDATE_IP);
+        if (!$hostOk) {
+            return '';
+        }
+        $url = $parsed['scheme'] . '://' . $parsed['host'];
+        if (!empty($parsed['port'])) {
+            $url .= ':' . (int) $parsed['port'];
+        }
+        return $url;
+    }
+
     public function render(): string
     {
-        $siteUrl = rtrim((string) $this->cfg('site_url'), '/');
+        $siteUrl = $this->safeSiteUrl();
         $siteId = (int) $this->cfg('site_id');
-        if (empty($siteUrl) || $siteId < 1) {
+        if ($siteUrl === '' || $siteId < 1) {
             return '';
         }
 
@@ -119,9 +146,9 @@ HTML;
 
     public function renderNoscript(): string
     {
-        $siteUrl = rtrim((string) $this->cfg('site_url'), '/');
+        $siteUrl = $this->safeSiteUrl();
         $siteId = (int) $this->cfg('site_id');
-        if (empty($siteUrl) || $siteId < 1) {
+        if ($siteUrl === '' || $siteId < 1) {
             return '';
         }
 

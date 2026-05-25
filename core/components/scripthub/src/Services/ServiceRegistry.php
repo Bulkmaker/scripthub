@@ -122,13 +122,14 @@ class ServiceRegistry
     }
 
     /**
-     * @return AbstractService[]
+     * Frontend injection set: only services that were explicitly added AND enabled.
+     * Both flags must be true — see Add.php / Update.php / Toggle.php.
      */
     public function getEnabled(): array
     {
         $enabled = array_filter(
             $this->services,
-            fn(AbstractService $s) => $s->isEnabled()
+            fn(AbstractService $s) => $s->isEnabled() && $s->isAdded()
         );
 
         uasort($enabled, fn(AbstractService $a, AbstractService $b) =>

@@ -67,7 +67,11 @@ class JivoSite extends AbstractService
             return '';
         }
 
-        $safeId = $this->escAttr($this->sanitizeId((string) $widgetId));
+        $cleanId = $this->sanitizeId((string) $widgetId);
+        if ($cleanId === '') {
+            return '';
+        }
+        $safeId = $this->escAttr($cleanId);
 
         return <<<HTML
 <!-- JivoSite (scriptHub) -->

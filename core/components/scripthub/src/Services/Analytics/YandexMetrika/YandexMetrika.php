@@ -181,8 +181,12 @@ class YandexMetrika extends AbstractService
             $options['defer'] = true;
         }
 
+        $cleanCounterId = $this->sanitizeId((string) $id);
+        if ($cleanCounterId === '') {
+            return '';
+        }
         $optionsJson = json_encode($options, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-        $safeCounterId = $this->jsEncode($this->sanitizeId((string) $id));
+        $safeCounterId = $this->jsEncode($cleanCounterId);
         $safeScriptUrl = $this->jsEncode($scriptUrl);
 
         return <<<HTML
@@ -206,7 +210,11 @@ HTML;
             return '';
         }
 
-        $safeCounterId = $this->escAttr($this->sanitizeId((string) $id));
+        $cleanCounterId = $this->sanitizeId((string) $id);
+        if ($cleanCounterId === '') {
+            return '';
+        }
+        $safeCounterId = $this->escAttr($cleanCounterId);
         return '<noscript><div><img src="https://mc.yandex.ru/watch/' . $safeCounterId . '" style="position:absolute;left:-9999px" alt="" /></div></noscript>';
     }
 }

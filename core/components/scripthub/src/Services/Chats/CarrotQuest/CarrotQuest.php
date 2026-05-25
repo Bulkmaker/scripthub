@@ -67,7 +67,11 @@ class CarrotQuest extends AbstractService
             return '';
         }
 
-        $safeKey = $this->jsEncode($this->sanitizeId((string) $apiKey));
+        $cleanKey = $this->sanitizeId((string) $apiKey);
+        if ($cleanKey === '') {
+            return '';
+        }
+        $safeKey = $this->jsEncode($cleanKey);
 
         return <<<HTML
 <!-- Carrot Quest (scriptHub) -->

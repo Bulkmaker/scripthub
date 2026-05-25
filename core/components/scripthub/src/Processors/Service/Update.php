@@ -37,18 +37,19 @@ class Update extends Processor
         $allowedKeys = array_column($service->getFields(), 'key');
         $config = array_intersect_key($config, array_flip($allowedKeys));
 
-        // Validate
+        // Validate (loads lexicon for localized error messages)
+        $this->modx->lexicon->load('scripthub:default');
         $errors = $service->validate($config);
         if (!empty($errors)) {
             return $this->failure('Validation failed', ['errors' => $errors]);
         }
 
-        // Save to DB (upsert)
+        // Service must be explicitly added first — Update never creates rows.
+        // Prevents direct-POST bypass of the add-flow that would otherwise
+        // inject scripts on the frontend for never-added services.
         $row = $this->modx->getObject(\scripthub\ScriptHubService::class, ['service_key' => $serviceKey]);
-        if (!$row) {
-            $row = $this->modx->newObject(\scripthub\ScriptHubService::class);
-            $row->set('service_key', $serviceKey);
-            $row->set('created_at', date('Y-m-d H:i:s'));
+        if (!$row || !$row->get('added')) {
+            return $this->failure('Service must be added before it can be configured');
         }
 
         $row->set('config', json_encode($config, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));

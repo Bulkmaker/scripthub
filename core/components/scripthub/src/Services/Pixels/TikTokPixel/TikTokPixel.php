@@ -67,7 +67,11 @@ class TikTokPixel extends AbstractService
             return '';
         }
 
-        $safeId = $this->jsEncode($this->sanitizeId((string) $pixelId));
+        $cleanId = $this->sanitizeId((string) $pixelId);
+        if ($cleanId === '') {
+            return '';
+        }
+        $safeId = $this->jsEncode($cleanId);
 
         return <<<HTML
 <!-- TikTok Pixel (scriptHub) -->

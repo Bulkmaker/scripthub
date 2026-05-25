@@ -30,13 +30,12 @@ class Toggle extends Processor
             return $this->failure('Service not found');
         }
 
-        // Upsert
+        // Service must be explicitly added first — Toggle never creates rows.
+        // Prevents direct-POST bypass that would otherwise create a zombie
+        // enabled=1, added=0 row injecting on the frontend but invisible in UI.
         $row = $this->modx->getObject(\scripthub\ScriptHubService::class, ['service_key' => $serviceKey]);
-        if (!$row) {
-            $row = $this->modx->newObject(\scripthub\ScriptHubService::class);
-            $row->set('service_key', $serviceKey);
-            $row->set('config', '{}');
-            $row->set('created_at', date('Y-m-d H:i:s'));
+        if (!$row || !$row->get('added')) {
+            return $this->failure('Service must be added before it can be toggled');
         }
 
         $row->set('enabled', $enabled);

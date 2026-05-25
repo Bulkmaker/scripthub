@@ -67,7 +67,11 @@ class MyTarget extends AbstractService
             return '';
         }
 
-        $safeId = $this->jsEncode($this->sanitizeId((string) $counterId));
+        $cleanId = $this->sanitizeId((string) $counterId);
+        if ($cleanId === '') {
+            return '';
+        }
+        $safeId = $this->jsEncode($cleanId);
 
         return <<<HTML
 <!-- Top.Mail.Ru / MyTarget (scriptHub) -->
@@ -90,7 +94,11 @@ HTML;
         if (empty($counterId)) {
             return '';
         }
-        $safeId = $this->escAttr($this->sanitizeId((string) $counterId));
+        $cleanId = $this->sanitizeId((string) $counterId);
+        if ($cleanId === '') {
+            return '';
+        }
+        $safeId = $this->escAttr($cleanId);
         return '<noscript><div><img src="https://top-fwz1.mail.ru/counter?id=' . $safeId . ';js=na" style="position:absolute;left:-9999px" alt="Top.Mail.Ru" /></div></noscript>';
     }
 }

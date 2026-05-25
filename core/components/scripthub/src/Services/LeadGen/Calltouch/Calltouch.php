@@ -76,8 +76,13 @@ class Calltouch extends AbstractService
             return '';
         }
 
-        $safeModId = $this->jsEncode($this->sanitizeId((string) $modId));
-        $safeSiteId = $this->jsEncode($this->sanitizeId((string) $siteId));
+        $cleanModId = $this->sanitizeId((string) $modId);
+        $cleanSiteId = $this->sanitizeId((string) $siteId);
+        if ($cleanModId === '' || $cleanSiteId === '') {
+            return '';
+        }
+        $safeModId = $this->jsEncode($cleanModId);
+        $safeSiteId = $this->jsEncode($cleanSiteId);
 
         return <<<HTML
 <!-- Calltouch (scriptHub) -->

@@ -68,7 +68,11 @@ class Callibri extends AbstractService
             return '';
         }
 
-        $safeSiteId = $this->jsEncode($this->sanitizeId($rawSiteId));
+        $cleanSiteId = $this->sanitizeId($rawSiteId);
+        if ($cleanSiteId === '') {
+            return '';
+        }
+        $safeSiteId = $this->jsEncode($cleanSiteId);
 
         return <<<HTML
 <!-- Callibri (scriptHub) -->
