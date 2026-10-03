@@ -17,9 +17,13 @@ Thumbs.db
 # Self-hosted vendor assets (downloaded at runtime)
 assets/components/scripthub/vendor/
 
-# Internal release docs (vendor account refs, internal workflow) — public repo
+# Internal release docs (vendor account refs, internal workflow)
 docs/RELEASE.md
 docs/RELEASE-*.md
-_build/
+
+# Build artifacts and local overrides
+_build/build.config.php
+_build/output/
+_build/modx-source/
 core/packages/
 *.transport.zip

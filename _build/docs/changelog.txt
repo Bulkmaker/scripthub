@@ -1,0 +1,33 @@
+scriptHub Changelog
+===================
+
+1.0.0-pl (2026-05-25)
+---------------------
+Первый публичный релиз.
+
+Возможности:
+- 16 сервисов в 4 категориях:
+  - Analytics: Яндекс Метрика, Google Analytics 4, Matomo, Roistat
+  - Pixels: VK Pixel, Top.Mail.Ru / MyTarget, Meta Pixel, TikTok Pixel
+  - Chats: JivoSite, Carrot Quest, Callibri, Чаты Яндекса для бизнеса
+  - LeadGen: Marquiz, SendPulse, Calltouch, CoMagic
+- Явный flow «добавить → настроить → включить» с drag-and-drop
+  сортировкой и SVG-иконками каждого сервиса
+- Self-hosted Яндекс Метрика (tag.js на вашем домене с автообновлением)
+- GDPR/152-ФЗ helpers: GA4 anonymize_ip / consent signals, Matomo
+  setSecureCookie + setCookieSameSite + правильный порядок disableCookies,
+  Meta Pixel consent mode (default-deny)
+- Все сниппеты сверены с официальной документацией поставщиков на 2026-05
+
+Безопасность:
+- Sanitize-хелперы для всех user-input (sanitizeId, sanitizeUrl с allowlist,
+  jsEncode, escAttr)
+- Все 16 сервисов делают early-return на невалидном ID — никаких
+  ym("","init") или fbq('init','') на странице
+- Frontend инъекция требует одновременно added=1 И enabled=1, что
+  закрывает direct-POST байпас add-флоу
+- Случай-нечувствительная инъекция в </head>/</body> через preg_replace
+- Защита от backreference injection (preg_replace_callback в afterBody)
+
+Зависимости:
+- VueTools (modstore.pro/packages/utilities/vuetools)
