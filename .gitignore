@@ -27,3 +27,11 @@ _build/output/
 _build/modx-source/
 core/packages/
 *.transport.zip
+
+# Секреты и мусор (2026-10-03)
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.sql
+*.sql.gz
