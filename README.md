@@ -108,22 +108,15 @@ npm run dev
 
 Результат сборки: `assets/components/scripthub/mgr/vue-dist/scripthub-admin.min.js`
 
-### Workflow с сайтом site.render-room.ru
+### Установка в MODX для разработки
 
-Сайт-репо (`site.render-room.ru`) содержит только **собранный** компонент (без Vue-исходников).
+Репозиторий содержит исходники, включая Vue. В MODX-инсталляцию копируется только **собранный** компонент.
 
-**Порядок работы:**
-
-1. **Дебаг/тестирование** — PHP и CSS можно редактировать прямо в сайт-репо для быстрой проверки. Vue — только через сборку здесь.
-2. **Проверка** — убедиться что изменения работают в менеджере MODX.
-3. **Перенос сюда** — скопировать рабочие изменения из сайта в этот репо, закоммитить.
-4. **Обновить сайт** — скопировать собранный компонент обратно в сайт-репо, закоммитить.
-
-**Копирование в сайт (после сборки):**
+**Копирование в MODX (после сборки):**
 
 ```bash
-SRC=~/Documents/GitHub/scripthub
-DEST=~/Documents/GitHub/site.render-room.ru/modx
+SRC=/path/to/scripthub
+DEST=/path/to/modx
 
 # Core (PHP)
 cp -R "$SRC/core/components/scripthub/" "$DEST/core/components/scripthub/"
@@ -134,7 +127,7 @@ cp -R "$SRC/assets/components/scripthub/css/" "$DEST/assets/components/scripthub
 cp -R "$SRC/assets/components/scripthub/mgr/" "$DEST/assets/components/scripthub/mgr/"
 ```
 
-> **Не копировать** `js/`, `node_modules/` в сайт — там только исходники для разработки.
+> **Не копировать** `js/`, `node_modules/` в MODX: там только исходники для разработки.
 
 Или используйте симлинки:
 
